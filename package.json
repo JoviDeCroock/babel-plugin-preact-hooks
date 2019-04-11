@@ -1,0 +1,42 @@
+{
+  "name": "babel-plugin-preact-hooks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:watch": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoviDeCroock/babel-plugin-preact-hooks.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoviDeCroock/babel-plugin-preact-hooks/issues"
+  },
+  "homepage": "https://github.com/JoviDeCroock/babel-plugin-preact-hooks#readme",
+  "dependencies": {
+    "@babel/generator": "^7.2.2",
+    "@babel/parser": "^7.2.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-syntax-jsx": "^7.2.0",
+    "eslint": "^5.1.0",
+    "eslint-config-developit": "^1.1.1",
+    "jest": "^23.6.0"
+  },
+  "eslintConfig": {
+    "extends": "eslint-config-developit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "globals": {
+      "NODE_ENV": "test"
+    },
+    "moduleFileExtensions": [
+      "js"
+    ]
+  }
+}
