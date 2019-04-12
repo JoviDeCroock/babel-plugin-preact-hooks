@@ -3,23 +3,140 @@ const jsx = require('@babel/plugin-syntax-jsx');
 const hooksPlugin = require('../src');
 
 describe('babel-plugin-preact-hooks', () => {
-	it('Should replace a top-level function without dependencies', () => {
-		const code = transform(`
-      () => {
-        const clickAlert = () => alert('clicked')
-        return (
-          <button onClick={clickAlert} />
-        )
-      }
-    `);
+	describe('useCallback', () => {
+		it('Should replace a top-level function without dependencies', () => {
+			const code = transform(`
+        () => {
+          const clickAlert = () => alert('clicked')
+          return (
+            <button onClick={clickAlert} />
+          )
+        }
+      `);
+  
+			expect(code).toEqual(
+				'import { useCallback as _useCallback } from "preact/hooks";\n' +
+				'\n' +
+				'() => {\n' +
+        "  const clickAlert = _useCallback(() => alert('clicked'), []);\n\n" +
+        '  return <button onClick={clickAlert} />;\n' +
+				'};'
+			);
+		});
 
-		expect(code).toEqual(`
-      () => {
-        const clickAlert = useCallback(() => alert('clicked'), []);
-        return <button onClick={clickAlert} />;
-      };
-    `);
+		it('Should not add the import twice', () => {
+			const code = transform(`
+        () => {
+					const clickAlert = () => alert('clicked')
+					const clickAlert2 = () => alert('clicked2')
+          return (
+            <button onClick={clickAlert} onClick2={clickAlert2} />
+          )
+        }
+      `);
+  
+			expect(code).toEqual(
+				'import { useCallback as _useCallback } from "preact/hooks";\n' +
+				'\n' +
+				'() => {\n' +
+        "  const clickAlert = _useCallback(() => alert('clicked'), []);\n\n" +
+        "  const clickAlert2 = _useCallback(() => alert('clicked2'), []);\n\n" +
+        '  return <button onClick={clickAlert} onClick2={clickAlert2} />;\n' +
+				'};'
+			);
+		});
+
+		it('Should not make a callback in a function', () => {
+			const code = transform(`
+        () => {
+          return ['1'].map(x => <button onClick={() => alert('clicked', x)} />)
+        }
+      `);
+  
+			expect(code).toEqual(
+				'() => {\n' +
+        "  return ['1'].map(x => <button onClick={() => alert('clicked', x)} />);\n" +
+				'};'
+			);
+		});
+
+		it('Should ignore conditional callbacks', () => {
+			const code = transform(`
+        ({ x }) => {
+					let clickAlert = () => {}
+					if (x) {
+						clickAlert = () => alert('clicked')
+					}
+          return (
+            <button onClick={clickAlert} />
+          )
+        }
+      `);
+  
+			expect(code).toEqual(
+				'({\n' +
+				'  x\n' +
+				'}) => {\n' +
+				'  let clickAlert = () => {};\n\n' +
+				'  if (x) {\n' +
+				"    clickAlert = () => alert('clicked');\n" +
+				'  }\n\n' +
+        '  return <button onClick={clickAlert} />;\n' +
+				'};'
+			);
+		});
+
+		it.skip('Should replace an inline function without dependencies', () => {
+			const code = transform(`
+        () => {
+          return (
+            <button onClick={() => alert('clicked')} />
+          )
+        }
+      `);
+  
+			expect(code).toEqual('() => {\n' +
+        "  const clickAlert = useCallback(() => alert('clicked'), []);\n" +
+        '  return <button onClick={clickAlert} />;\n' +
+      '};');
+		});
 	});
+
+	describe('useMemo', () => {
+		it('Should replace a simple memoization', () => {
+			const code = transform(`
+	      () => {
+	        const number = 1 + 1;
+	        return <p>{number}</p>
+	      }
+	    `);
+  
+			expect(code).toEqual(
+				'import { useMemo as _useMemo } from "preact/hooks";\n' +
+				'\n' +
+				'() => {\n' +
+	      '  const number = _useMemo(() => 1 + 1, []);\n\n' +
+	      '  return <p>{number}</p>;\n' +
+	    '};');
+		});
+
+		it.skip('Should replace a top-level array function with dependencies', () => {
+			const code = transform(`
+	      ({ array }) => {
+	        const parents = array.filter(p => p.age > 40);
+	        return parents.map(p => p.name);
+	      }
+	    `);
+  
+			expect(code).toEqual('({\n' +
+	      '  array\n' +
+				'}) => {\n' +
+	      '  const parents = useMemo(() => array.filter(p => p.age > 40), [array]);\n' +
+	      '  return <button onClick={clickAlert} />;\n' +
+	    '};');
+		});
+	});
+
 });
 
 const transform = (code) => transformSync(code, {
