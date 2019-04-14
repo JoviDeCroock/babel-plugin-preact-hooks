@@ -120,19 +120,22 @@ describe('babel-plugin-preact-hooks', () => {
 	    '};');
 		});
 
-		it.skip('Should replace a top-level array function with dependencies', () => {
+		it('Should replace a top-level array function with dependencies', () => {
 			const code = transform(`
 	      ({ array }) => {
 	        const parents = array.filter(p => p.age > 40);
-	        return parents.map(p => p.name);
+	        return <div>{parents.map(p => p.name)}</div>
 	      }
 	    `);
   
-			expect(code).toEqual('({\n' +
+			expect(code).toEqual(
+				'import { useMemo as _useMemo } from "preact/hooks";\n' +
+				'\n' +
+				'({\n' +
 	      '  array\n' +
 				'}) => {\n' +
-	      '  const parents = useMemo(() => array.filter(p => p.age > 40), [array]);\n' +
-	      '  return <button onClick={clickAlert} />;\n' +
+	      '  const parents = _useMemo(() => array.filter(p => p.age > 40), [array, array.filter]);\n\n' +
+	      '  return <div>{parents.map(p => p.name)}</div>;\n' +
 	    '};');
 		});
 	});
