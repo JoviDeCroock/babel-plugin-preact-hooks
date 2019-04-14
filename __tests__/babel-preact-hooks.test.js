@@ -46,6 +46,30 @@ describe('babel-plugin-preact-hooks', () => {
 			);
 		});
 
+		it('Should not make a conditional callback', () => {
+			const code = transform(`
+        ({ y }) => {
+					let x;
+					if (y) {
+						x = () => alert('clicked');
+					}
+          return <button onClick={x} />
+        }
+      `);
+  
+			expect(code).toEqual(
+				'({\n' +
+				'  y\n' +
+				'}) => {\n' +
+				'  let x;\n\n' +
+				'  if (y) {\n' +
+				"    x = () => alert('clicked');\n" +
+				'  }\n\n' +
+        '  return <button onClick={x} />;\n' +
+				'};'
+			);
+		});
+
 		it('Should not make a callback in a function', () => {
 			const code = transform(`
         () => {
