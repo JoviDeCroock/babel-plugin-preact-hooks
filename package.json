@@ -18,7 +18,8 @@
   "homepage": "https://github.com/JoviDeCroock/babel-plugin-preact-hooks#readme",
   "dependencies": {
     "@babel/generator": "7.4.0",
-    "@babel/parser": "7.4.3"
+    "@babel/parser": "7.4.3",
+    "@babel/types": "7.4.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.3",
