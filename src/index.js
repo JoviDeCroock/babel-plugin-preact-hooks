@@ -1,8 +1,9 @@
 const generate = require('@babel/generator').default;
 const { parse } = require('@babel/parser');
 const { addNamed } = require('@babel/helper-module-imports');
+const types = require('@babel/types');
 
-const hooksPlugin = ({ types }) => {
+const hooksPlugin = () => {
 	let program, addedCallback, cbImport, addedMemo, memoImport;
 	// Helpers!
 	const isAnyFunctionExpression = node => node && (types.isArrowFunctionExpression(node) || types.isFunctionExpression(node));
